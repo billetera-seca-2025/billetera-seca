@@ -5,6 +5,8 @@ on:
     workflows: [ "CI Build" ]
     types:
       - completed
+    branches:
+      - dev
 
 jobs:
   deploy-dev:
