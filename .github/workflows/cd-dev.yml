@@ -5,11 +5,10 @@ on:
     workflows: [ "CI Build" ]
     types:
       - completed
-    branches:
-      - dev
 
 jobs:
   deploy-dev:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev' }}
     runs-on: ubuntu-latest
 
     steps:
