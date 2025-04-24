@@ -35,3 +35,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ghcr.io/billetera-seca-2025/billetera-seca-dev:latest
 
+# TODO: Add deployment steps to a server

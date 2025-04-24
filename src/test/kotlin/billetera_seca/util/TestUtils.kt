@@ -7,7 +7,7 @@ import java.util.*
 object TestUtils {
 
     // Creates a dummy wallet for testing
-    fun createTestWallet(): Wallet {
+    private fun createTestWallet(): Wallet {
         return Wallet(
             id = UUID.randomUUID(),
             balance = 1000.0

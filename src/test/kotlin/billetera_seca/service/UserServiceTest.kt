@@ -1,5 +1,8 @@
 package billetera_seca.service
 
+import billetera_seca.exceptions.InvalidEmailFormatException
+import billetera_seca.exceptions.UserAlreadyExistsException
+import billetera_seca.exceptions.WeakPasswordException
 import billetera_seca.model.User
 import billetera_seca.model.Wallet
 import billetera_seca.repository.UserRepository
@@ -44,7 +47,7 @@ class UserServiceTest {
     }
 
     @Test
-    fun `should throw exception when email already exists`() {
+    fun `should throw UserAlreadyExistsException when email already exists`() {
         // Arrange
         val email = "existing@example.com"
         val password = "pass"
@@ -52,12 +55,53 @@ class UserServiceTest {
 
         every { userRepository.findByEmail(email) } returns existingUser
 
-        // Act + Assert
-        assertThrows<IllegalArgumentException> {
+        // Act & Assert
+        assertThrows<UserAlreadyExistsException> {
             userService.createUser(email, password)
         }
 
         verify(exactly = 0) { walletRepository.save(any()) }
         verify(exactly = 0) { userRepository.save(any()) }
     }
+
+    @Test
+    fun `should throw InvalidEmailFormatException for invalid email format`() {
+        val invalidEmail = "invalid-email"
+        val password = "password123"
+
+        assertThrows<InvalidEmailFormatException> {
+            userService.createUser(invalidEmail, password)
+        }
+
+        verify { userRepository wasNot Called }
+        verify { walletRepository wasNot Called }
+    }
+
+    @Test
+    fun `should throw WeakPasswordException for weak password`() {
+        val email = "test@example.com"
+        val weakPassword = "123"
+
+        assertThrows<WeakPasswordException> {
+            userService.createUser(email, weakPassword)
+        }
+
+        verify { userRepository wasNot Called }
+        verify { walletRepository wasNot Called }
+    }
+
+    @Test
+    fun `should initialize wallet with correct balance and empty transactions`() {
+        val user = TestUtils.createTestUser()
+        every { userRepository.findByEmail(user.email) } returns null
+        every { walletRepository.save(any()) } returns user.wallet
+        every { userRepository.save(any()) } returns user
+
+        val createdUser = userService.createUser(user.email, user.password)
+
+        assert(createdUser.wallet.balance == 1000.0)
+        assert(createdUser.wallet.transactions.isEmpty())
+    }
+
+
 }
