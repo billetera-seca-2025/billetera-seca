@@ -1,4 +1,5 @@
-package billetera_seca.exceptions
+package billetera_seca.exception
+
 // Exception when a user already exists
 class UserAlreadyExistsException(message: String) : RuntimeException(message)
 

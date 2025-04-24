@@ -1,8 +1,8 @@
 package billetera_seca.controller
 
-import billetera_seca.exceptions.InvalidEmailFormatException
-import billetera_seca.exceptions.UserAlreadyExistsException
-import billetera_seca.exceptions.WeakPasswordException
+import billetera_seca.exception.InvalidEmailFormatException
+import billetera_seca.exception.UserAlreadyExistsException
+import billetera_seca.exception.WeakPasswordException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
