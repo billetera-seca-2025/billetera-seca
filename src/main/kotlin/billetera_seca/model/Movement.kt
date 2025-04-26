@@ -1,12 +1,28 @@
 package billetera_seca.model
 
-import java.util.UUID
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
+import java.util.*
 
+@Entity
+@Table(name = "movements")
 data class Movement(
+    @Id
     val id: UUID = UUID.randomUUID(),
-    val walletId: String,
+
+    @ManyToOne
+    @JoinColumn(name = "wallet_id", nullable = false)
+    val wallet: Wallet,
+
+    @Column(nullable = false)
     val amount: Double,
-    // type can be income or outcome
-    val type: String,
-    val createdAt: String,
+
+    @Column(nullable = false)
+    val type: String, // "income" or "outcome"
+
+    val createdAt: Date = Date()
 )

@@ -13,6 +13,6 @@ data class Wallet(
     @Id
     val id: UUID = UUID.randomUUID(),
     @Column(nullable = false)
-    val balance:  Double = 0.0,
+    var balance:  Double = 0.0,
     val createdAt: Date = Date()
 )

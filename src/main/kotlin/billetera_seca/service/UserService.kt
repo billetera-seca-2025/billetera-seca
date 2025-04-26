@@ -32,4 +32,8 @@ class UserService(
         val encoder = BCryptPasswordEncoder()
         return encoder.encode(password)
     }
+
+    fun findByEmail(email: String): User? {
+        return userRepository.findByEmail(email)
+    }
 }

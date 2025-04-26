@@ -1,8 +1,9 @@
-package billetera_seca.service
+package billetera_seca.service.user
 
 import billetera_seca.BaseTest
 import billetera_seca.repository.UserRepository
 import billetera_seca.repository.WalletRepository
+import billetera_seca.service.UserService
 import billetera_seca.util.TestUtils
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

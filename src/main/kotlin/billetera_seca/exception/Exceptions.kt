@@ -8,3 +8,9 @@ class InvalidEmailFormatException(message: String) : RuntimeException(message)
 
 // Exception when the password is too short
 class WeakPasswordException(message: String) : RuntimeException(message)
+
+// Exception when a user is not found
+class UserNotFoundException(message: String) : RuntimeException(message)
+
+// Exception when the wallet balance is insufficient
+class InsufficientBalanceException(message: String) : RuntimeException(message)

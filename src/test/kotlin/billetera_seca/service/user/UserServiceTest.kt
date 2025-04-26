@@ -1,4 +1,4 @@
-package billetera_seca.service
+package billetera_seca.service.user
 
 import billetera_seca.exception.InvalidEmailFormatException
 import billetera_seca.exception.UserAlreadyExistsException
@@ -7,8 +7,10 @@ import billetera_seca.model.User
 import billetera_seca.model.Wallet
 import billetera_seca.repository.UserRepository
 import billetera_seca.repository.WalletRepository
+import billetera_seca.service.UserService
 import billetera_seca.util.TestUtils
 import io.mockk.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -42,8 +44,8 @@ class UserServiceTest {
         verify(exactly = 1) { walletRepository.save(any()) }
         verify(exactly = 1) { userRepository.save(any()) }
 
-        assert(createdUser.email == user.email)
-        assert(createdUser.wallet.balance == 1000.0)
+        assertEquals(user.email, createdUser.email)
+        assertEquals(1000.0, createdUser.wallet.balance)
     }
 
     @Test
@@ -99,7 +101,7 @@ class UserServiceTest {
 
         val createdUser = userService.createUser(user.email, user.password)
 
-        assert(createdUser.wallet.balance == 1000.0)
+        assertEquals(createdUser.wallet.balance, 1000.0)
         //assert(createdUser.wallet.transactions.isEmpty())
     }
 
