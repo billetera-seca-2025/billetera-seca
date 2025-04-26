@@ -1,8 +1,6 @@
-package billetera_seca.service
+package billetera_seca.service.user
 
-import billetera_seca.exception.InvalidEmailFormatException
 import billetera_seca.exception.UserAlreadyExistsException
-import billetera_seca.exception.WeakPasswordException
 import billetera_seca.model.User
 import billetera_seca.model.Wallet
 import billetera_seca.repository.UserRepository

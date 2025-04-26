@@ -1,4 +1,4 @@
-package billetera_seca.service
+package billetera_seca.service.movement
 
 import billetera_seca.model.Movement
 import billetera_seca.model.Wallet

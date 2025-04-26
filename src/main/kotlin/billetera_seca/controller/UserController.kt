@@ -1,6 +1,6 @@
 package billetera_seca.controller
 
-import billetera_seca.service.UserService
+import billetera_seca.service.user.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 

@@ -1,6 +1,6 @@
 package billetera_seca.controller
 
-import billetera_seca.service.WalletService
+import billetera_seca.service.wallet.WalletService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -26,4 +26,6 @@ class WalletController(private val walletService: WalletService) {
         walletService.transfer(senderEmail, receiverEmail, amount)
         return ResponseEntity.ok("Transfer successful")
     }
+
+    //TODO: Implement the debin() method
 }

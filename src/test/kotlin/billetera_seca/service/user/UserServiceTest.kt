@@ -7,7 +7,6 @@ import billetera_seca.model.User
 import billetera_seca.model.Wallet
 import billetera_seca.repository.UserRepository
 import billetera_seca.repository.WalletRepository
-import billetera_seca.service.UserService
 import billetera_seca.util.TestUtils
 import io.mockk.*
 import org.junit.jupiter.api.Assertions.assertEquals

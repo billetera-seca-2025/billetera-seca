@@ -4,9 +4,8 @@ import billetera_seca.exception.InsufficientBalanceException
 import billetera_seca.exception.UserNotFoundException
 import billetera_seca.model.Wallet
 import billetera_seca.repository.WalletRepository
-import billetera_seca.service.MovementService
-import billetera_seca.service.UserService
-import billetera_seca.service.WalletService
+import billetera_seca.service.movement.MovementService
+import billetera_seca.service.user.UserService
 import billetera_seca.util.TestUtils
 import io.mockk.every
 import io.mockk.mockk
