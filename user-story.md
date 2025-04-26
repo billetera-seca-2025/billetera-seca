@@ -1,5 +1,6 @@
 # User Stories for E-Wallet Application
 
+
 This document outlines the key user stories for the e-wallet application, focusing on the core functionalities required for the mobile app, web app, and backend API.
 
 ## Account Management
