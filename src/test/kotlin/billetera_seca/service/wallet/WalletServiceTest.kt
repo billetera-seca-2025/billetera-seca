@@ -4,7 +4,7 @@ import billetera_seca.exception.InsufficientBalanceException
 import billetera_seca.exception.UserNotFoundException
 import billetera_seca.model.Wallet
 import billetera_seca.repository.WalletRepository
-import billetera_seca.service.movement.MovementService
+import billetera_seca.service.transaction.TransactionService
 import billetera_seca.service.user.UserService
 import billetera_seca.util.TestUtils
 import io.mockk.every
@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate
 class WalletServiceTest {
 
     private lateinit var walletRepository: WalletRepository
-    private lateinit var movementService: MovementService
+    private lateinit var transactionService: TransactionService
     private lateinit var userService: UserService
     private lateinit var walletService: WalletService
     private lateinit var restTemplate: RestTemplate
@@ -28,10 +28,10 @@ class WalletServiceTest {
     @BeforeEach
     fun setUp() {
         walletRepository = mockk()
-        movementService = mockk()
+        transactionService = mockk()
         userService = mockk()
         restTemplate = mockk()
-        walletService = WalletService(walletRepository, movementService, userService, restTemplate)
+        walletService = WalletService(walletRepository, transactionService, userService, restTemplate)
     }
 
     @Test
@@ -68,8 +68,8 @@ class WalletServiceTest {
         every { userService.findByEmail(senderEmail) } returns sender
         every { userService.findByEmail(receiverEmail) } returns receiver
         every { walletRepository.save(any()) } answers { firstArg<Wallet>() }
-        every { movementService.registerOutcomeToExternal(any(), any(), any()) } just runs
-        every { movementService.registerIncomeFromP2P(any(), any(), any()) } just runs
+        every { transactionService.registerOutcomeToExternal(any(), any(), any()) } just runs
+        every { transactionService.registerIncomeFromP2P(any(), any(), any()) } just runs
 
         // Act
         walletService.transfer(senderEmail, receiverEmail, amount)
@@ -80,8 +80,8 @@ class WalletServiceTest {
 
         verify(exactly = 1) { walletRepository.save(sender.wallet) }
         verify(exactly = 1) { walletRepository.save(receiver.wallet) }
-        verify(exactly = 1) { movementService.registerOutcomeToExternal(sender.wallet, amount, any()) }
-        verify(exactly = 1) { movementService.registerIncomeFromP2P(receiver.wallet, amount, any()) }
+        verify(exactly = 1) { transactionService.registerOutcomeToExternal(sender.wallet, amount, any()) }
+        verify(exactly = 1) { transactionService.registerIncomeFromP2P(receiver.wallet, amount, any()) }
     }
 
 
@@ -100,7 +100,7 @@ class WalletServiceTest {
         }
 
         verify(exactly = 0) { walletRepository.save(any()) }
-        verify(exactly = 0) { movementService.registerOutcome(any(), any()) }
+        verify(exactly = 0) { transactionService.registerOutcome(any(), any()) }
     }
 
     @Test
@@ -123,7 +123,7 @@ class WalletServiceTest {
         }
 
         verify(exactly = 0) { walletRepository.save(any()) }
-        verify(exactly = 0) { movementService.registerOutcome(any(), any()) }
+        verify(exactly = 0) { transactionService.registerOutcome(any(), any()) }
     }
 
     @Test
@@ -150,7 +150,7 @@ class WalletServiceTest {
         }
 
         verify(exactly = 0) { walletRepository.save(any()) }
-        verify(exactly = 0) { movementService.registerOutcome(any(), any()) }
+        verify(exactly = 0) { transactionService.registerOutcome(any(), any()) }
     }
 
 }

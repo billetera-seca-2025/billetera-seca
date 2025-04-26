@@ -1,22 +1,22 @@
-package billetera_seca.service.movement
+package billetera_seca.service.transaction
 
-import billetera_seca.model.Movement
-import billetera_seca.repository.MovementRepository
+import billetera_seca.model.Transaction
+import billetera_seca.repository.TransactionRepository
 import billetera_seca.util.TestUtils
 import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
 
-class MovementServiceTest {
+class TransactionServiceTest {
 
-    private lateinit var movementRepository: MovementRepository
-    private lateinit var movementService: MovementService
+    private lateinit var transactionRepository: TransactionRepository
+    private lateinit var transactionService: TransactionService
 
     @BeforeEach
     fun setUp() {
-        movementRepository = mockk()
-        movementService = MovementService(movementRepository)
+        transactionRepository = mockk()
+        transactionService = TransactionService(transactionRepository)
     }
 
     @Test
@@ -28,19 +28,19 @@ class MovementServiceTest {
 
         // Mock the behavior of the repository for the save method
         every {
-            movementRepository.save(any())
+            transactionRepository.save(any())
         } answers {
             // Simulates the behavior of saving a movement
-            val movement = firstArg<Movement>()
-            movement
+            val transaction = firstArg<Transaction>()
+            transaction
         }
 
         // Act
-        movementService.registerOutcomeToExternal(wallet, amount, externalWalletId)
+        transactionService.registerOutcomeToExternal(wallet, amount, externalWalletId)
 
         // Assert
         verify(exactly = 1) {
-            movementRepository.save(
+            transactionRepository.save(
                 match {
                     it.wallet.id == wallet.id && it.amount == amount && it.type == "outcome" && it.relatedWalletId == externalWalletId
                 }
@@ -56,19 +56,19 @@ class MovementServiceTest {
 
         // Mock the behavior of the repository for the save method
         every {
-            movementRepository.save(any())
+            transactionRepository.save(any())
         } answers {
             // Simulates the behavior of saving a movement
-            val movement = firstArg<Movement>()
-            movement
+            val transaction = firstArg<Transaction>()
+            transaction
         }
 
         // Act
-        movementService.registerOutcome(wallet, amount)
+        transactionService.registerOutcome(wallet, amount)
 
         // Assert
         verify(exactly = 1) {
-            movementRepository.save(
+            transactionRepository.save(
                 match {
                     it.wallet.id == wallet.id && it.amount == amount && it.type == "outcome" && it.relatedWalletId == null
                 }
@@ -84,19 +84,19 @@ class MovementServiceTest {
 
         // Mock the behavior of the repository for the save method
         every {
-            movementRepository.save(any())
+            transactionRepository.save(any())
         } answers {
             // Simulates the behavior of saving a movement
-            val movement = firstArg<Movement>()
-            movement
+            val transaction = firstArg<Transaction>()
+            transaction
         }
 
         // Act
-        movementService.registerIncome(wallet, amount)
+        transactionService.registerIncome(wallet, amount)
 
         // Assert
         verify(exactly = 1) {
-            movementRepository.save(
+            transactionRepository.save(
                 match {
                     it.wallet.id == wallet.id && it.amount == amount && it.type == "income" && it.relatedWalletId == null
                 }
@@ -113,19 +113,19 @@ class MovementServiceTest {
 
         // Mock the behavior of the repository for the save method
         every {
-            movementRepository.save(any())
+            transactionRepository.save(any())
         } answers {
             // Simulates the behavior of saving a movement
-            val movement = firstArg<Movement>()
-            movement
+            val transaction = firstArg<Transaction>()
+            transaction
         }
 
         // Act
-        movementService.registerIncomeFromP2P(wallet, amount, senderWalletId)
+        transactionService.registerIncomeFromP2P(wallet, amount, senderWalletId)
 
         // Assert
         verify(exactly = 1) {
-            movementRepository.save(
+            transactionRepository.save(
                 match {
                     it.wallet.id == wallet.id && it.amount == amount && it.type == "income" && it.relatedWalletId == senderWalletId
                 }

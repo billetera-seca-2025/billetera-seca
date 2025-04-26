@@ -4,7 +4,7 @@ import billetera_seca.exception.InsufficientBalanceException
 import billetera_seca.exception.UserNotFoundException
 import billetera_seca.model.dto.FakeApiResponse
 import billetera_seca.repository.WalletRepository
-import billetera_seca.service.movement.MovementService
+import billetera_seca.service.transaction.TransactionService
 import billetera_seca.service.user.UserService
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity
 @Service
 class WalletService(
     private val walletRepository: WalletRepository,
-    private val movementService: MovementService,
+    private val transactionService: TransactionService,
     private val userService: UserService,
     private val restTemplate: RestTemplate
 ) {
@@ -42,8 +42,8 @@ class WalletService(
         walletRepository.save(sender.wallet)
         walletRepository.save(receiver.wallet)
 
-        movementService.registerOutcomeToExternal(senderWallet, amount, receiverWallet.id)
-        movementService.registerIncomeFromP2P(receiverWallet, amount, senderWallet.id)
+        transactionService.registerOutcomeToExternal(senderWallet, amount, receiverWallet.id)
+        transactionService.registerIncomeFromP2P(receiverWallet, amount, senderWallet.id)
     }
     /*
     Simulates recharging balance using a fake API: when the user makes a transaction from a bank account or card to the wallet.

@@ -101,7 +101,7 @@ class UserServiceTest {
         val createdUser = userService.createUser(user.email, user.password)
 
         assertEquals(createdUser.wallet.balance, 1000.0)
-        //assert(createdUser.wallet.transactions.isEmpty())
+        assert(createdUser.wallet.transactions.isEmpty())
     }
 
 

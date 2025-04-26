@@ -9,8 +9,8 @@ import jakarta.persistence.Table
 import java.util.*
 
 @Entity
-@Table(name = "movements")
-data class Movement(
+@Table(name = "transactions")
+data class Transaction(
     @Id
     val id: UUID = UUID.randomUUID(),
 
@@ -22,7 +22,7 @@ data class Movement(
     val amount: Double,
 
     @Column(nullable = false)
-    val type: String, // "income" or "outcome"
+    val type: TransactionType, // "income" or "outcome"
 
     val createdAt: Date = Date(),
 

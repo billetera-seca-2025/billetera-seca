@@ -1,14 +1,15 @@
-package billetera_seca.service.movement
+package billetera_seca.service.transaction
 
-import billetera_seca.model.Movement
+import billetera_seca.model.Transaction
+import billetera_seca.model.TransactionType
 import billetera_seca.model.Wallet
-import billetera_seca.repository.MovementRepository
+import billetera_seca.repository.TransactionRepository
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class MovementService(
-    private val movementRepository: MovementRepository
+class TransactionService(
+    private val transactionRepository: TransactionRepository
 ) {
 
     /**
@@ -16,14 +17,14 @@ class MovementService(
      * Esto ocurre cuando el usuario envía dinero.
      */
     fun registerOutcome(wallet: Wallet, amount: Double) {
-        val movement = Movement(
+        val transaction = Transaction(
             wallet = wallet,
             amount = amount,
-            type = "outcome",
+            type = TransactionType.OUTCOME,
             createdAt = Date(),
             relatedWalletId = null // En este caso no hay relación, ya que es un egreso simple
         )
-        movementRepository.save(movement)
+        transactionRepository.save(transaction)
     }
 
     /**
@@ -31,14 +32,14 @@ class MovementService(
      * Esto ocurre cuando el usuario recibe dinero.
      */
     fun registerIncome(wallet: Wallet, amount: Double) {
-        val movement = Movement(
+        val transaction = Transaction(
             wallet = wallet,
             amount = amount,
-            type = "income",
+            type = TransactionType.INCOME,
             createdAt = Date(),
             relatedWalletId = null // En este caso no hay relación, ya que es una carga desde medio externo
         )
-        movementRepository.save(movement)
+        transactionRepository.save(transaction)
     }
 
     /**
@@ -47,14 +48,14 @@ class MovementService(
      * El `relatedWalletId` está asociado al wallet del usuario que envió el dinero.
      */
     fun registerIncomeFromP2P(wallet: Wallet, amount: Double, senderWalletId: UUID) {
-        val movement = Movement(
+        val transaction = Transaction(
             wallet = wallet,
             amount = amount,
-            type = "income",
+            type = TransactionType.INCOME,
             createdAt = Date(),
             relatedWalletId = senderWalletId // Relacionamos al emisor de la transacción
         )
-        movementRepository.save(movement)
+        transactionRepository.save(transaction)
     }
 
     /**
@@ -62,13 +63,13 @@ class MovementService(
      * Se vincula a un wallet relacionado, en caso de que se trate de una transacción de tipo DEBIN o similares.
      */
     fun registerOutcomeToExternal(wallet: Wallet, amount: Double, relatedWalletId: UUID) {
-        val movement = Movement(
+        val transaction = Transaction(
             wallet = wallet,
             amount = amount,
-            type = "outcome",
+            type = TransactionType.OUTCOME,
             createdAt = Date(),
             relatedWalletId = relatedWalletId // Asociamos al destinatario del pago
         )
-        movementRepository.save(movement)
+        transactionRepository.save(transaction)
     }
 }

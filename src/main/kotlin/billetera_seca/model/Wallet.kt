@@ -1,9 +1,6 @@
 package billetera_seca.model
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import java.util.Date
 import java.util.UUID
 
@@ -14,5 +11,8 @@ data class Wallet(
     val id: UUID = UUID.randomUUID(),
     @Column(nullable = false)
     var balance:  Double = 0.0,
-    val createdAt: Date = Date()
+    val createdAt: Date = Date(),
+
+    @OneToMany(mappedBy = "wallet", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    val transactions: List<Transaction> = mutableListOf()
 )

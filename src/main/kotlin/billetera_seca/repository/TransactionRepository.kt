@@ -1,7 +1,7 @@
 package billetera_seca.repository
 
-import billetera_seca.model.Movement
+import billetera_seca.model.Transaction
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
-interface MovementRepository : JpaRepository<Movement, UUID>
+interface TransactionRepository : JpaRepository<Transaction, UUID>
