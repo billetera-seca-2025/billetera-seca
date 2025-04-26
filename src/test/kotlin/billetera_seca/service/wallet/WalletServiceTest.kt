@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import io.mockk.*
 import org.junit.jupiter.api.assertThrows
+import org.springframework.web.client.RestTemplate
 
 class WalletServiceTest {
 
@@ -21,13 +22,16 @@ class WalletServiceTest {
     private lateinit var movementService: MovementService
     private lateinit var userService: UserService
     private lateinit var walletService: WalletService
+    private lateinit var restTemplate: RestTemplate
+
 
     @BeforeEach
     fun setUp() {
         walletRepository = mockk()
         movementService = mockk()
         userService = mockk()
-        walletService = WalletService(walletRepository, movementService, userService)
+        restTemplate = mockk()
+        walletService = WalletService(walletRepository, movementService, userService, restTemplate)
     }
 
     @Test
@@ -64,8 +68,8 @@ class WalletServiceTest {
         every { userService.findByEmail(senderEmail) } returns sender
         every { userService.findByEmail(receiverEmail) } returns receiver
         every { walletRepository.save(any()) } answers { firstArg<Wallet>() }
-        every { movementService.registerOutcome(sender.wallet, amount) } just Runs
-        every { movementService.registerIncome(receiver.wallet, amount) } just Runs
+        every { movementService.registerOutcomeToExternal(any(), any(), any()) } just runs
+        every { movementService.registerIncomeFromP2P(any(), any(), any()) } just runs
 
         // Act
         walletService.transfer(senderEmail, receiverEmail, amount)
@@ -76,9 +80,10 @@ class WalletServiceTest {
 
         verify(exactly = 1) { walletRepository.save(sender.wallet) }
         verify(exactly = 1) { walletRepository.save(receiver.wallet) }
-        verify(exactly = 1) { movementService.registerOutcome(sender.wallet, amount) }
-        verify(exactly = 1) { movementService.registerIncome(receiver.wallet, amount) }
+        verify(exactly = 1) { movementService.registerOutcomeToExternal(sender.wallet, amount, any()) }
+        verify(exactly = 1) { movementService.registerIncomeFromP2P(receiver.wallet, amount, any()) }
     }
+
 
     @Test
     fun `transfer should throw UserNotFoundException when sender not found`() {

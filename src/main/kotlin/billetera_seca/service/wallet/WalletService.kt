@@ -42,8 +42,8 @@ class WalletService(
         walletRepository.save(sender.wallet)
         walletRepository.save(receiver.wallet)
 
-        movementService.registerOutcome(senderWallet, amount)
-        movementService.registerIncome(receiverWallet, amount)
+        movementService.registerOutcomeToExternal(senderWallet, amount, receiverWallet.id)
+        movementService.registerIncomeFromP2P(receiverWallet, amount, senderWallet.id)
     }
     /*
     Simulates recharging balance using a fake API: when the user makes a transaction from a bank account or card to the wallet.

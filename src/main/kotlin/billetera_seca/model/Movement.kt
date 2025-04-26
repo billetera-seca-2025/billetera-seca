@@ -16,7 +16,7 @@ data class Movement(
 
     @ManyToOne
     @JoinColumn(name = "wallet_id", nullable = false)
-    val wallet: Wallet,
+    val wallet: Wallet, //Related to the wallet that made the movement
 
     @Column(nullable = false)
     val amount: Double,
@@ -24,5 +24,9 @@ data class Movement(
     @Column(nullable = false)
     val type: String, // "income" or "outcome"
 
-    val createdAt: Date = Date()
+    val createdAt: Date = Date(),
+
+    @Column(nullable = true)
+    val relatedWalletId: UUID? = null  // Associated wallet ID for the movement (e.g., for P2P transactions)
+
 )
