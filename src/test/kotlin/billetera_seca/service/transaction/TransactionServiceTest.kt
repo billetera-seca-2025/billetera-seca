@@ -1,6 +1,7 @@
 package billetera_seca.service.transaction
 
 import billetera_seca.model.Transaction
+import billetera_seca.model.TransactionType
 import billetera_seca.repository.TransactionRepository
 import billetera_seca.util.TestUtils
 import io.mockk.*
@@ -42,7 +43,7 @@ class TransactionServiceTest {
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
-                    it.wallet.id == wallet.id && it.amount == amount && it.type == "outcome" && it.relatedWalletId == externalWalletId
+                    it.wallet.id == wallet.id && it.amount == amount && it.type == TransactionType.OUTCOME && it.relatedWalletId == externalWalletId
                 }
             )
         }
@@ -70,7 +71,7 @@ class TransactionServiceTest {
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
-                    it.wallet.id == wallet.id && it.amount == amount && it.type == "outcome" && it.relatedWalletId == null
+                    it.wallet.id == wallet.id && it.amount == amount && it.type ==  TransactionType.OUTCOME && it.relatedWalletId == null
                 }
             )
         }
@@ -98,7 +99,7 @@ class TransactionServiceTest {
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
-                    it.wallet.id == wallet.id && it.amount == amount && it.type == "income" && it.relatedWalletId == null
+                    it.wallet.id == wallet.id && it.amount == amount && it.type ==  TransactionType.INCOME && it.relatedWalletId == null
                 }
             )
         }
@@ -127,7 +128,7 @@ class TransactionServiceTest {
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
-                    it.wallet.id == wallet.id && it.amount == amount && it.type == "income" && it.relatedWalletId == senderWalletId
+                    it.wallet.id == wallet.id && it.amount == amount && it.type ==  TransactionType.INCOME && it.relatedWalletId == senderWalletId
                 }
             )
         }
