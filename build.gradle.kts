@@ -26,6 +26,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
+    // Web Client for API calls
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
 
     // Spring Security dependencies
     implementation("org.springframework.boot:spring-boot-starter-security")

@@ -1,5 +1,6 @@
 package billetera_seca.service.wallet
 
+import billetera_seca.dto.DebinRequest
 import billetera_seca.exception.InsufficientBalanceException
 import billetera_seca.exception.UserNotFoundException
 import billetera_seca.model.dto.FakeApiResponse
@@ -12,6 +13,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
+import org.springframework.web.reactive.function.client.WebClient
 
 
 @Service
@@ -19,7 +21,7 @@ class WalletService(
     private val walletRepository: WalletRepository,
     private val transactionService: TransactionService,
     private val userService: UserService,
-    private val restTemplate: RestTemplate
+    private val webClient: WebClient
 ) {
     fun getBalance(email: String): Double {
         val user = userService.findByEmail(email) ?: throw UserNotFoundException(email)
@@ -45,35 +47,28 @@ class WalletService(
         transactionService.registerOutcomeToExternal(senderWallet, amount, receiverWallet.id)
         transactionService.registerIncomeFromP2P(receiverWallet, amount, senderWallet.id)
     }
-    /*
-    Simulates recharging balance using a fake API: when the user makes a transaction from a bank account or card to the wallet.
-    In this scenario, the money is simply transferred from the payment system to the user's wallet.
-     */
-    fun rechargeBalance(email: String, amount: Double) {
-        val user = userService.findByEmail(email) ?: throw UserNotFoundException(email)
 
-        // Prepare the request to the fake API
-        val url = "http://fake-api.com/wallet/recharge-balance"
-        val requestHeaders = HttpHeaders()
-        requestHeaders.set("Content-Type", "application/json")
-        val requestBody = mapOf("amount" to amount)
-        val requestEntity = HttpEntity(requestBody, requestHeaders)
-
-        // Send the request to the fake API
-        val response: ResponseEntity<FakeApiResponse> = restTemplate.exchange(url, HttpMethod.POST, requestEntity, FakeApiResponse::class.java)
-
-        // Check the response from the fake API
-        if (response.body?.success == true) {
-            user.wallet.balance += amount
-            walletRepository.save(user.wallet)
-        } else {
-            throw Exception("Error al cargar saldo.")
+    fun handleDebinRequest(debinRequest: DebinRequest): Boolean {
+        userService.findByEmail(debinRequest.payerEmail) ?: throw UserNotFoundException(debinRequest.payerEmail)
+        userService.findByEmail(debinRequest.collectorEmail) ?: throw UserNotFoundException(debinRequest.collectorEmail)
+        // Call the external fake API to process the DEBIN request
+        val debinApproved = requestDebinAuthorization(debinRequest.amount)
+        if (debinApproved) {
+            // If the DEBIN is approved, proceed with the transfer
+            transfer(debinRequest.payerEmail, debinRequest.collectorEmail, debinRequest.amount)
+            return true
         }
+        return false
     }
 
-    /*
-    The frontend (either the web or mobile app) makes an application to perform a debit from a bank account to the user's wallet.
-    The fake API will be called to simulate this transfer of funds from the bank account to the wallet system.
-     */
-    //TODO: Implement the debin() method
+    private fun requestDebinAuthorization(amount: Double): Boolean {
+        // Call the API mock to request DEBIN authorization
+        return webClient.post()
+            .uri("/mock/debin")
+            .bodyValue(mapOf("amount" to amount))
+            .retrieve()
+            .bodyToMono(Boolean::class.java)  // Assuming the API returns a boolean (true/false)
+            .block() ?: false
+    }
+
 }

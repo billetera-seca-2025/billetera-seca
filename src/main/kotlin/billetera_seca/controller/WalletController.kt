@@ -1,9 +1,12 @@
 package billetera_seca.controller
 
+import billetera_seca.dto.DebinRequest
 import billetera_seca.service.wallet.WalletService
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -27,5 +30,22 @@ class WalletController(private val walletService: WalletService) {
         return ResponseEntity.ok("Transfer successful")
     }
 
-    //TODO: Implement the debin() method
+    /**
+     * Handles the DEBIN request by checking if the users exist and if the DEBIN is approved.
+     * If approved, it proceeds with the transfer.
+     *
+     * User A want to charge money from User B using DEBIN.
+     * A sends a POST to /wallet/debin with the following body: payerEmail, collectorEmail, amount.
+     * An external API will be called to check if the DEBIN is approved. (random answer: success/failure).
+     * If the DEBIN is approved, the transfer will be executed.
+     */
+    @PostMapping("/debin")
+    fun requestDebin(@RequestBody debinRequest: DebinRequest): ResponseEntity<String> {
+        val result = walletService.handleDebinRequest(debinRequest)
+        return if (result) {
+            ResponseEntity.ok("DEBIN accepted and processed")
+        } else {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("DEBIN rejected or failed")
+        }
+    }
 }
