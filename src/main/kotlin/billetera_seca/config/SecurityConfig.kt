@@ -1,41 +1,40 @@
-package ingisis.manager.security
+package billetera_seca.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
+// SecurityConfig.kt
 @Configuration
-@EnableWebSecurity
 class SecurityConfig {
-
     @Bean
-    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
+            .cors { it.configurationSource(corsConfigurationSource()) }
+            .csrf { it.disable() }
             .authorizeHttpRequests {
-                it
-                    .requestMatchers("/users/register", "/users/login").permitAll()  // Permite acceso sin autenticación
-                    .anyRequest().authenticated()  // Requiere autenticación para otros endpoints
+                it.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers("/users/register", "/users/login").permitAll()
+                it.anyRequest().authenticated()
             }
-            .cors { it.configurationSource(corsConfigurationSource()) }  // Configuración CORS
-            .csrf { it.disable() }  // Desactiva CSRF si es necesario
+
         return http.build()
     }
 
     @Bean
-    fun corsConfigurationSource(): UrlBasedCorsConfigurationSource {
-        val source = UrlBasedCorsConfigurationSource()
+    fun corsConfigurationSource(): CorsConfigurationSource {
         val config = CorsConfiguration()
-
-        config.applyPermitDefaultValues()
-        config.allowCredentials = true
         config.allowedOrigins = listOf("http://localhost:3000")
-        config.allowedHeaders = listOf("authorization", "content-type", "*")
         config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        config.allowedHeaders = listOf("*")
+        config.allowCredentials = true
 
+        val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", config)
         return source
     }
