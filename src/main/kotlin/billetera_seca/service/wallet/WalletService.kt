@@ -1,18 +1,12 @@
 package billetera_seca.service.wallet
 
-import billetera_seca.dto.DebinRequest
+import billetera_seca.dto.InstantDebitRequest
 import billetera_seca.exception.InsufficientBalanceException
 import billetera_seca.exception.UserNotFoundException
-import billetera_seca.model.dto.FakeApiResponse
 import billetera_seca.repository.WalletRepository
 import billetera_seca.service.transaction.TransactionService
 import billetera_seca.service.user.UserService
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestTemplate
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpMethod
-import org.springframework.http.ResponseEntity
 import org.springframework.web.reactive.function.client.WebClient
 
 
@@ -48,23 +42,23 @@ class WalletService(
         transactionService.registerIncomeFromP2P(receiverWallet, amount, senderWallet.id)
     }
 
-    fun handleDebinRequest(debinRequest: DebinRequest): Boolean {
-        userService.findByEmail(debinRequest.payerEmail) ?: throw UserNotFoundException(debinRequest.payerEmail)
-        userService.findByEmail(debinRequest.collectorEmail) ?: throw UserNotFoundException(debinRequest.collectorEmail)
+    fun handleInstantDebitRequest(instantDebitRequest: InstantDebitRequest): Boolean {
+        userService.findByEmail(instantDebitRequest.payerEmail) ?: throw UserNotFoundException(instantDebitRequest.payerEmail)
+        userService.findByEmail(instantDebitRequest.collectorEmail) ?: throw UserNotFoundException(instantDebitRequest.collectorEmail)
         // Call the external fake API to process the DEBIN request
-        val debinApproved = requestDebinAuthorization(debinRequest.amount)
+        val debinApproved = requestInstantDebitAuthorization(instantDebitRequest.amount)
         if (debinApproved) {
             // If the DEBIN is approved, proceed with the transfer
-            transfer(debinRequest.payerEmail, debinRequest.collectorEmail, debinRequest.amount)
+            transfer(instantDebitRequest.payerEmail, instantDebitRequest.collectorEmail, instantDebitRequest.amount)
             return true
         }
         return false
     }
 
-    private fun requestDebinAuthorization(amount: Double): Boolean {
+    private fun requestInstantDebitAuthorization(amount: Double): Boolean {
         // Call the API mock to request DEBIN authorization
         return webClient.post()
-            .uri("/mock/debin")
+            .uri("/mock/instant-debit")
             .bodyValue(mapOf("amount" to amount))
             .retrieve()
             .bodyToMono(Boolean::class.java)  // Assuming the API returns a boolean (true/false)

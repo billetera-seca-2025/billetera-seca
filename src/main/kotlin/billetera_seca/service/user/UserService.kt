@@ -14,7 +14,7 @@ class UserService(
     private val userRepository: UserRepository,
     private val walletRepository: WalletRepository,
 ) {
-    fun createUser(email: String, password: String, initialBalance: Double = 0.0): User {
+    fun createUser(email: String, password: String, initialBalance: Double = 50000.0): User {
         UserValidator.validateEmail(email)
         UserValidator.validatePassword(password)
         if (userRepository.findByEmail(email) != null) {

@@ -1,6 +1,6 @@
 package billetera_seca.controller
 
-import billetera_seca.dto.DebinRequest
+import billetera_seca.dto.InstantDebitRequest
 import billetera_seca.service.wallet.WalletService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -40,8 +40,8 @@ class WalletController(private val walletService: WalletService) {
      * If the DEBIN is approved, the transfer will be executed.
      */
     @PostMapping("/debin")
-    fun requestDebin(@RequestBody debinRequest: DebinRequest): ResponseEntity<String> {
-        val result = walletService.handleDebinRequest(debinRequest)
+    fun requestDebin(@RequestBody instantDebitRequest: InstantDebitRequest): ResponseEntity<String> {
+        val result = walletService.handleInstantDebitRequest(instantDebitRequest)
         return if (result) {
             ResponseEntity.ok("DEBIN accepted and processed")
         } else {
