@@ -45,10 +45,10 @@ class WalletService(
     fun handleInstantDebitRequest(instantDebitRequest: InstantDebitRequest): Boolean {
         userService.findByEmail(instantDebitRequest.payerEmail) ?: throw UserNotFoundException(instantDebitRequest.payerEmail)
         userService.findByEmail(instantDebitRequest.collectorEmail) ?: throw UserNotFoundException(instantDebitRequest.collectorEmail)
-        // Call the external fake API to process the DEBIN request
-        val debinApproved = requestInstantDebitAuthorization(instantDebitRequest.amount)
-        if (debinApproved) {
-            // If the DEBIN is approved, proceed with the transfer
+        // Call the external fake API to process the Instant Debit request
+        val instantDebitApproved = requestInstantDebitAuthorization(instantDebitRequest.amount)
+        if (instantDebitApproved) {
+            // If the Instant Debit is approved, proceed with the transfer
             transfer(instantDebitRequest.payerEmail, instantDebitRequest.collectorEmail, instantDebitRequest.amount)
             return true
         }
@@ -56,7 +56,7 @@ class WalletService(
     }
 
     private fun requestInstantDebitAuthorization(amount: Double): Boolean {
-        // Call the API mock to request DEBIN authorization
+        // Call the API mock to request Instant Debit authorization
         return webClient.post()
             .uri("/mock/instant-debit")
             .bodyValue(mapOf("amount" to amount))

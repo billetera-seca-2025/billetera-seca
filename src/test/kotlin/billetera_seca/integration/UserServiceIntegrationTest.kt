@@ -2,7 +2,6 @@ package billetera_seca.integration
 
 import billetera_seca.BaseTest
 import billetera_seca.repository.UserRepository
-import billetera_seca.repository.WalletRepository
 import billetera_seca.service.user.UserService
 import billetera_seca.util.TestUtils
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,9 +18,6 @@ class UserServiceIntegrationTest: BaseTest() {
 
     @Autowired
     private lateinit var userRepository: UserRepository
-
-    @Autowired
-    private lateinit var walletRepository: WalletRepository
 
     @Autowired
     private lateinit var userService: UserService

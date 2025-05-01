@@ -31,21 +31,21 @@ class WalletController(private val walletService: WalletService) {
     }
 
     /**
-     * Handles the DEBIN request by checking if the users exist and if the DEBIN is approved.
+     * Handles the Instant Debit request by checking if the users exist and if the Instant Debit is approved.
      * If approved, it proceeds with the transfer.
      *
-     * User A want to charge money from User B using DEBIN.
-     * A sends a POST to /wallet/debin with the following body: payerEmail, collectorEmail, amount.
-     * An external API will be called to check if the DEBIN is approved. (random answer: success/failure).
-     * If the DEBIN is approved, the transfer will be executed.
+     * User A want to charge money from User B using Instant Debit.
+     * A sends a POST to /wallet/instant-debit with the following body: payerEmail, collectorEmail, amount.
+     * An external API will be called to check if the Instant Debit is approved. (random answer: success/failure).
+     * If the Instant Debit is approved, the transfer will be executed.
      */
-    @PostMapping("/debin")
-    fun requestDebin(@RequestBody instantDebitRequest: InstantDebitRequest): ResponseEntity<String> {
+    @PostMapping("/instant-debit")
+    fun requestInstantDebit(@RequestBody instantDebitRequest: InstantDebitRequest): ResponseEntity<String> {
         val result = walletService.handleInstantDebitRequest(instantDebitRequest)
         return if (result) {
-            ResponseEntity.ok("DEBIN accepted and processed")
+            ResponseEntity.ok("Instant Debit accepted and processed")
         } else {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("DEBIN rejected or failed")
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Instant Debit rejected or failed")
         }
     }
 }
