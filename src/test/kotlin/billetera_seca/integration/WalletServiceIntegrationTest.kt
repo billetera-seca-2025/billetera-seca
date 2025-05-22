@@ -3,6 +3,7 @@ package billetera_seca.integration
 import billetera_seca.BaseTest
 import billetera_seca.config.TestWebClientConfig
 import billetera_seca.exception.InsufficientBalanceException
+import billetera_seca.model.dto.InstantDebitRequest
 import billetera_seca.repository.UserRepository
 import billetera_seca.service.user.UserService
 import billetera_seca.service.wallet.WalletService
@@ -14,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
-import billetera_seca.dto.InstantDebitRequest
-import org.junit.jupiter.api.Tag
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -27,7 +26,7 @@ class WalletServiceIntegrationTest: BaseTest() {
 
     @Autowired
     private lateinit var userRepository: UserRepository
-    
+
     @Autowired
     private lateinit var userService: UserService
 
@@ -62,8 +61,8 @@ class WalletServiceIntegrationTest: BaseTest() {
 
         // Assert
         assert(result.isFailure)
-        assert(result.exceptionOrNull()?.message?.contains("Bank $invalidBankName is not available or does not exist") == true)
-        
+        assert(result.exceptionOrNull()?.message?.contains("Bank '$invalidBankName' is not available or does not exist") == true)
+
         // Verify balance hasn't changed
         val updatedReceiver = userRepository.findById(savedReceiver.id).get()
         assertEquals(1000.0, updatedReceiver.wallet.balance) // Initial balance unchanged
@@ -94,8 +93,8 @@ class WalletServiceIntegrationTest: BaseTest() {
 
         // Assert
         assert(result.isFailure)
-        assert(result.exceptionOrNull()?.message?.contains("Invalid amount, must be greater than 0") == true)
-        
+        assert(result.exceptionOrNull()?.message?.contains("Invalid amount: must be greater than 0") == true)
+
         // Verify balance hasn't changed
         val updatedReceiver = userRepository.findById(savedReceiver.id).get()
         assertEquals(1000.0, updatedReceiver.wallet.balance) // Initial balance unchanged
@@ -126,8 +125,8 @@ class WalletServiceIntegrationTest: BaseTest() {
 
         // Assert
         assert(result.isFailure)
-        assert(result.exceptionOrNull()?.message?.contains("Instant Debit Request rejected: Amount exceeds limit") == true)
-        
+        assert(result.exceptionOrNull()?.message?.contains("Instant Debit Request rejected: Amount exceeds the limit") == true)
+
         // Verify balance hasn't changed
         val updatedReceiver = userRepository.findById(savedReceiver.id).get()
         assertEquals(1000.0, updatedReceiver.wallet.balance) // Initial balance unchanged

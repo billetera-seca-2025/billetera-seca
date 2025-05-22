@@ -1,9 +1,13 @@
 package billetera_seca.service.transaction
 
+import billetera_seca.exception.UserNotFoundException
 import billetera_seca.model.Transaction
 import billetera_seca.model.TransactionType
 import billetera_seca.model.Wallet
+import billetera_seca.model.dto.TransactionDTO
 import billetera_seca.repository.TransactionRepository
+import billetera_seca.service.user.UserService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -11,6 +15,9 @@ import java.util.*
 class TransactionService(
     private val transactionRepository: TransactionRepository
 ) {
+
+    @Autowired
+    private lateinit var userService: UserService
 
     /**
      * Registra un movimiento de salida (outcome) en la billetera.
@@ -71,5 +78,22 @@ class TransactionService(
             relatedWalletId = relatedWalletId // Asociamos al destinatario del pago
         )
         transactionRepository.save(transaction)
+    }
+
+    fun getUserTransactionDTOsByEmail(email: String): List<TransactionDTO> {
+        val user = userService.findByEmail(email)
+            ?: throw UserNotFoundException(email)
+
+        return user.wallet.transactions
+            .sortedByDescending { it.createdAt }
+            .map {
+                TransactionDTO(
+                    amount = it.amount,
+                    type = it.type,
+                    createdAt = it.createdAt,
+                    relatedWalletId = it.relatedWalletId,
+                    relatedBankName = it.relatedBankName
+                )
+            }
     }
 }

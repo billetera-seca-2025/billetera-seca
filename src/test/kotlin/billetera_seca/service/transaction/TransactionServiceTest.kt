@@ -22,29 +22,19 @@ class TransactionServiceTest {
     fun setUp() {
         transactionRepository = mockk()
         userService = mockk()
-        transactionService = TransactionService(transactionRepository, userService)
+        transactionService = TransactionService(transactionRepository)
     }
 
     @Test
     fun `should register outcome from P2P movement correctly`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val amount = 150.0
         val externalWalletId = UUID.randomUUID()
 
-        // Mock the behavior of the repository for the save method
-        every {
-            transactionRepository.save(any())
-        } answers {
-            // Simulates the behavior of saving a movement
-            val transaction = firstArg<Transaction>()
-            transaction
-        }
+        every { transactionRepository.save(any()) } answers { firstArg<Transaction>() }
 
-        // Act
         transactionService.registerOutcomeToExternal(wallet, amount, externalWalletId)
 
-        // Assert
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
@@ -56,23 +46,13 @@ class TransactionServiceTest {
 
     @Test
     fun `should register outcome movement correctly`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val amount = 100.0
 
-        // Mock the behavior of the repository for the save method
-        every {
-            transactionRepository.save(any())
-        } answers {
-            // Simulates the behavior of saving a movement
-            val transaction = firstArg<Transaction>()
-            transaction
-        }
+        every { transactionRepository.save(any()) } answers { firstArg<Transaction>() }
 
-        // Act
         transactionService.registerOutcome(wallet, amount)
 
-        // Assert
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
@@ -84,24 +64,14 @@ class TransactionServiceTest {
 
     @Test
     fun `should register income movement correctly`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val amount = 200.0
         val bankName = "BBVA"
 
-        // Mock the behavior of the repository for the save method
-        every {
-            transactionRepository.save(any())
-        } answers {
-            // Simulates the behavior of saving a movement
-            val transaction = firstArg<Transaction>()
-            transaction
-        }
+        every { transactionRepository.save(any()) } answers { firstArg<Transaction>() }
 
-        // Act
-        transactionService.registerIncome(wallet, amount, bankName)
+        transactionService.registerIncome(wallet, amount)
 
-        // Assert
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
@@ -110,13 +80,12 @@ class TransactionServiceTest {
             )
         }
     }
+
     @Test
     fun `should throw exception for negative amount in registerOutcome`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val negativeAmount = -100.0
 
-        // Act & Assert
         assertThrows<NegativeOrZeroAmountException> {
             transactionService.registerOutcome(wallet, negativeAmount)
         }
@@ -124,11 +93,9 @@ class TransactionServiceTest {
 
     @Test
     fun `should throw exception for zero amount in registerIncome`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val zeroAmount = 0.0
 
-        // Act & Assert
         assertThrows<NegativeOrZeroAmountException> {
             transactionService.registerIncome(wallet, zeroAmount)
         }
@@ -136,16 +103,13 @@ class TransactionServiceTest {
 
     @Test
     fun `should handle large amount in registerIncome`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val largeAmount = 1_000_000.0
 
         every { transactionRepository.save(any()) } answers { firstArg<Transaction>() }
 
-        // Act
         transactionService.registerIncome(wallet, largeAmount)
 
-        // Assert
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
@@ -157,15 +121,13 @@ class TransactionServiceTest {
 
     @Test
     fun `should handle incorrect relatedWalletId in registerOutcomeToExternal`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val amount = 100.0
 
         every { transactionRepository.save(any()) } answers { firstArg<Transaction>() }
 
-        // Act
         transactionService.registerOutcomeToExternal(wallet, amount, UUID.randomUUID())
-        // Assert
+
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
@@ -177,13 +139,11 @@ class TransactionServiceTest {
 
     @Test
     fun `should handle repository save failure`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val amount = 100.0
 
         every { transactionRepository.save(any()) } throws RuntimeException("Database error")
 
-        // Act & Assert
         assertThrows<RuntimeException> {
             transactionService.registerOutcome(wallet, amount)
         }
@@ -191,16 +151,13 @@ class TransactionServiceTest {
 
     @Test
     fun `should assign createdAt date in registerIncome`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val amount = 200.0
 
         every { transactionRepository.save(any()) } answers { firstArg<Transaction>() }
 
-        // Act
         transactionService.registerIncome(wallet, amount)
 
-        // Assert
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
@@ -212,12 +169,10 @@ class TransactionServiceTest {
 
     @Test
     fun `should throw exception for negative amount in registerIncomeFromP2P`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val negativeAmount = -50.0
         val senderWalletId = UUID.randomUUID()
 
-        // Act & Assert
         assertThrows<NegativeOrZeroAmountException> {
             transactionService.registerIncomeFromP2P(wallet, negativeAmount, senderWalletId)
         }
@@ -225,24 +180,14 @@ class TransactionServiceTest {
 
     @Test
     fun `should register income from P2P movement correctly`() {
-        // Arrange
         val wallet = TestUtils.createTestWallet()
         val amount = 300.0
         val senderWalletId = UUID.randomUUID()
 
-        // Mock the behavior of the repository for the save method
-        every {
-            transactionRepository.save(any())
-        } answers {
-            // Simulates the behavior of saving a movement
-            val transaction = firstArg<Transaction>()
-            transaction
-        }
+        every { transactionRepository.save(any()) } answers { firstArg<Transaction>() }
 
-        // Act
         transactionService.registerIncomeFromP2P(wallet, amount, senderWalletId)
 
-        // Assert
         verify(exactly = 1) {
             transactionRepository.save(
                 match {

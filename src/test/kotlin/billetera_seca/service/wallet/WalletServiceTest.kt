@@ -37,23 +37,19 @@ class WalletServiceTest {
 
     @Test
     fun `getBalance should return correct wallet balance`() {
-        // Arrange
         val email = "user@example.com"
         val user = TestUtils.createTestUser(email)
 
         every { userService.findByEmail(email) } returns user
 
-        // Act
         val balance = walletService.getBalance(email)
 
-        // Assert
         assertEquals(1000.0, balance)
         verify(exactly = 1) { userService.findByEmail(email) }
     }
 
     @Test
     fun `transfer should successfully transfer funds between users`() {
-        // Arrange
         val senderEmail = "sender@example.com"
         val receiverEmail = "receiver@example.com"
         val amount = 100.0
@@ -72,12 +68,10 @@ class WalletServiceTest {
         every { transactionService.registerOutcomeToExternal(any(), any(), any()) } just runs
         every { transactionService.registerIncomeFromP2P(any(), any(), any()) } just runs
 
-        // Act
         walletService.transfer(senderEmail, receiverEmail, amount)
 
-        // Assert
-        assertEquals(100.0, sender.wallet.balance)  // 200 - 100
-        assertEquals(150.0, receiver.wallet.balance)  // 50 + 100
+        assertEquals(100.0, sender.wallet.balance)
+        assertEquals(150.0, receiver.wallet.balance)
 
         verify(exactly = 1) { walletRepository.save(sender.wallet) }
         verify(exactly = 1) { walletRepository.save(receiver.wallet) }
@@ -85,17 +79,14 @@ class WalletServiceTest {
         verify(exactly = 1) { transactionService.registerIncomeFromP2P(receiver.wallet, amount, any()) }
     }
 
-
     @Test
     fun `transfer should throw UserNotFoundException when sender not found`() {
-        // Arrange
         val senderEmail = "nonexistentSender@example.com"
         val receiverEmail = "receiver@example.com"
         val amount = 100.0
 
         every { userService.findByEmail(senderEmail) } returns null
 
-        // Act & Assert
         assertThrows<UserNotFoundException> {
             walletService.transfer(senderEmail, receiverEmail, amount)
         }
@@ -106,7 +97,6 @@ class WalletServiceTest {
 
     @Test
     fun `transfer should throw UserNotFoundException when receiver not found`() {
-        // Arrange
         val senderEmail = "sender@example.com"
         val receiverEmail = "nonexistentReceiver@example.com"
         val amount = 100.0
@@ -118,7 +108,6 @@ class WalletServiceTest {
         every { userService.findByEmail(senderEmail) } returns sender
         every { userService.findByEmail(receiverEmail) } returns null
 
-        // Act & Assert
         assertThrows<UserNotFoundException> {
             walletService.transfer(senderEmail, receiverEmail, amount)
         }
@@ -129,13 +118,12 @@ class WalletServiceTest {
 
     @Test
     fun `transfer should throw InsufficientBalanceException when sender has insufficient balance`() {
-        // Arrange
         val senderEmail = "sender@example.com"
         val receiverEmail = "receiver@example.com"
-        val amount = 500.0  // More than the sender's balance
+        val amount = 500.0
 
         val sender = TestUtils.createTestUser(senderEmail).apply {
-            wallet.balance = 200.0  // Insufficient balance
+            wallet.balance = 200.0
         }
 
         val receiver = TestUtils.createTestUser(receiverEmail).apply {
@@ -145,7 +133,6 @@ class WalletServiceTest {
         every { userService.findByEmail(senderEmail) } returns sender
         every { userService.findByEmail(receiverEmail) } returns receiver
 
-        // Act & Assert
         assertThrows<InsufficientBalanceException> {
             walletService.transfer(senderEmail, receiverEmail, amount)
         }
@@ -156,7 +143,6 @@ class WalletServiceTest {
 
     @Test
     fun `handleInstantDebitRequest should process instant debit request and transfer funds`() {
-        // Arrange
         val payerEmail = "email@gmail.com"
         val collectorEmail = "email2@gmail.com"
         val amount = 100.0
@@ -176,12 +162,13 @@ class WalletServiceTest {
         every { walletRepository.save(any()) } answers { firstArg<Wallet>() }
         every { transactionService.registerOutcomeToExternal(any(), any(), any()) } just runs
         every { transactionService.registerIncomeFromP2P(any(), any(), any()) } just runs
-        // Act
+
         val result = walletService.handleInstantDebitRequest(instantDebitRequest)
-        // Assert
+
         assertEquals(true, result)
-        assertEquals(100.0, payer.wallet.balance)  // 200 - 100
-        assertEquals(150.0, collector.wallet.balance)  // 50 + 100
+        assertEquals(100.0, payer.wallet.balance)
+        assertEquals(150.0, collector.wallet.balance)
+
         verify(exactly = 1) { walletRepository.save(payer.wallet) }
         verify(exactly = 1) { walletRepository.save(collector.wallet) }
         verify(exactly = 1) { transactionService.registerOutcomeToExternal(payer.wallet, amount, collector.wallet.id) }
@@ -190,17 +177,18 @@ class WalletServiceTest {
 
     @Test
     fun `handleInstantDebitRequest should throw UserNotFoundException when payer not found`() {
-        // Arrange
         val payerEmail = "email@gmail.com"
         val collectorEmail = "email2@gmail.com"
         val amount = 100.0
         val instantDebitRequest = InstantDebitRequest(payerEmail, collectorEmail, amount)
+
         every { userService.findByEmail(payerEmail) } returns null
         every { userService.findByEmail(collectorEmail) } returns TestUtils.createTestUser(collectorEmail)
-        // Act & Assert
+
         assertThrows<UserNotFoundException> {
             walletService.handleInstantDebitRequest(instantDebitRequest)
         }
+
         verify(exactly = 0) { walletRepository.save(any()) }
         verify(exactly = 0) { transactionService.registerOutcomeToExternal(any(), any(), any()) }
         verify(exactly = 0) { transactionService.registerIncomeFromP2P(any(), any(), any()) }
@@ -211,17 +199,18 @@ class WalletServiceTest {
 
     @Test
     fun `handleInstantDebitRequest should throw UserNotFoundException when collector not found`() {
-        // Arrange
         val payerEmail = "email@gmail.com"
         val collectorEmail = "email2@gmail.com"
         val amount = 100.0
         val instantDebitRequest = InstantDebitRequest(payerEmail, collectorEmail, amount)
+
         every { userService.findByEmail(payerEmail) } returns TestUtils.createTestUser(payerEmail)
         every { userService.findByEmail(collectorEmail) } returns null
-        // Act & Assert
+
         assertThrows<UserNotFoundException> {
             walletService.handleInstantDebitRequest(instantDebitRequest)
         }
+
         verify(exactly = 0) { walletRepository.save(any()) }
         verify(exactly = 0) { transactionService.registerOutcomeToExternal(any(), any(), any()) }
         verify(exactly = 0) { transactionService.registerIncomeFromP2P(any(), any(), any()) }
@@ -232,7 +221,6 @@ class WalletServiceTest {
 
     @Test
     fun `handleInstantDebitRequest should not transfer funds if instant debit is not approved`() {
-        // Arrange
         val payerEmail = "email@gmail.com"
         val collectorEmail = "email2@gmail.com"
         val amount = 100.0
@@ -243,6 +231,7 @@ class WalletServiceTest {
         val collector = TestUtils.createTestUser(collectorEmail).apply {
             wallet.balance = 50.0
         }
+
         every { userService.findByEmail(payerEmail) } returns payer
         every { userService.findByEmail(collectorEmail) } returns collector
         every {
@@ -251,12 +240,13 @@ class WalletServiceTest {
         every { walletRepository.save(any()) } answers { firstArg<Wallet>() }
         every { transactionService.registerOutcomeToExternal(any(), any(), any()) } just runs
         every { transactionService.registerIncomeFromP2P(any(), any(), any()) } just runs
-        // Act
+
         val result = walletService.handleInstantDebitRequest(instantDebitRequest)
-        // Assert
+
         assertEquals(false, result)
-        assertEquals(200.0, payer.wallet.balance)  // No change
-        assertEquals(50.0, collector.wallet.balance)  // No change
+        assertEquals(200.0, payer.wallet.balance)
+        assertEquals(50.0, collector.wallet.balance)
+
         verify(exactly = 0) { walletRepository.save(payer.wallet) }
         verify(exactly = 0) { walletRepository.save(collector.wallet) }
         verify(exactly = 0) { transactionService.registerOutcomeToExternal(payer.wallet, amount, collector.wallet.id) }
@@ -265,5 +255,4 @@ class WalletServiceTest {
             webClient.post().uri("/mock/instant-debit").bodyValue(any()).retrieve().bodyToMono(Boolean::class.java)
         }
     }
-
 }

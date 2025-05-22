@@ -108,7 +108,7 @@ class WalletService(
 
         try {
             walletRepository.save(receiver.wallet)
-            transactionService.registerIncome(receiverWallet, amount, bankName)
+            transactionService.registerIncome(receiverWallet, amount)
         } catch (e: Exception) {
             // If the transfer fails, revert the balance change
             receiverWallet.balance -= amount
