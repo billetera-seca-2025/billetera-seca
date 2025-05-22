@@ -1,6 +1,7 @@
 package billetera_seca.controller
 
-import billetera_seca.dto.InstantDebitRequest
+import billetera_seca.model.dto.FakeApiResponse
+import billetera_seca.model.dto.InstantDebitRequest
 import billetera_seca.service.wallet.WalletService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -40,12 +41,37 @@ class WalletController(private val walletService: WalletService) {
      * If the Instant Debit is approved, the transfer will be executed.
      */
     @PostMapping("/instant-debit")
-    fun requestInstantDebit(@RequestBody instantDebitRequest: InstantDebitRequest): ResponseEntity<String> {
-        val result = walletService.handleInstantDebitRequest(instantDebitRequest)
-        return if (result) {
-            ResponseEntity.ok("Instant Debit accepted and processed")
-        } else {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Instant Debit rejected or failed")
-        }
+    fun requestInstantDebit(@RequestBody instantDebitRequest: InstantDebitRequest): ResponseEntity<FakeApiResponse<Any>> {
+        return walletService.handleInstantDebitRequest(instantDebitRequest)
+            .fold(
+                onSuccess = {
+                    ResponseEntity.ok(
+                        FakeApiResponse(
+                            success = true,
+                            message = "Instant Debit request approved",
+                            data = mapOf(
+                                "amount" to instantDebitRequest.amount,
+                                "bankName" to instantDebitRequest.bankName
+                            )
+                        )
+                    )
+                },
+                onFailure = { error ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        FakeApiResponse(
+                            success = false,
+                            message = error.message ?: "Unknown error",
+                            data = null
+                        )
+                    )
+                }
+            )
+    }
+
+
+    @GetMapping("/user-email")
+    fun getUserEmailByWalletId(@RequestParam walletId: String): ResponseEntity<String> {
+        val email = walletService.getEmailByWalletId(walletId)
+        return ResponseEntity.ok(email)
     }
 }

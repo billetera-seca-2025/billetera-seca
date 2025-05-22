@@ -14,12 +14,3 @@ class UserNotFoundException(message: String) : RuntimeException(message)
 
 // Exception when the wallet balance is insufficient
 class InsufficientBalanceException(message: String) : RuntimeException(message)
-
-//Exception when destination wallet is self
-class SelfTransferException(message: String) : RuntimeException(message)
-
-//Exception when negative amount is used
-class NegativeOrZeroAmountException(message: String) : RuntimeException(message)
-
-//Exception when password is empty
-class EmptyPasswordException(message: String) : RuntimeException(message)

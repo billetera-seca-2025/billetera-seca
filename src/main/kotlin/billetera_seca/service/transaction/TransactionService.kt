@@ -1,6 +1,5 @@
 package billetera_seca.service.transaction
 
-import billetera_seca.exception.NegativeOrZeroAmountException
 import billetera_seca.model.Transaction
 import billetera_seca.model.TransactionType
 import billetera_seca.model.Wallet
@@ -18,13 +17,12 @@ class TransactionService(
      * Esto ocurre cuando el usuario envía dinero.
      */
     fun registerOutcome(wallet: Wallet, amount: Double) {
-        validateAmount(amount)
         val transaction = Transaction(
             wallet = wallet,
             amount = amount,
             type = TransactionType.OUTCOME,
             createdAt = Date(),
-            relatedWalletId = null
+            relatedWalletId = null // En este caso no hay relación, ya que es un egreso simple
         )
         transactionRepository.save(transaction)
     }
@@ -34,13 +32,12 @@ class TransactionService(
      * Esto ocurre cuando el usuario recibe dinero.
      */
     fun registerIncome(wallet: Wallet, amount: Double) {
-        validateAmount(amount)
         val transaction = Transaction(
             wallet = wallet,
             amount = amount,
             type = TransactionType.INCOME,
             createdAt = Date(),
-            relatedWalletId = null
+            relatedWalletId = null // En este caso no hay relación, ya que es una carga desde medio externo
         )
         transactionRepository.save(transaction)
     }
@@ -51,13 +48,12 @@ class TransactionService(
      * El `relatedWalletId` está asociado al wallet del usuario que envió el dinero.
      */
     fun registerIncomeFromP2P(wallet: Wallet, amount: Double, senderWalletId: UUID) {
-        validateAmount(amount)
         val transaction = Transaction(
             wallet = wallet,
             amount = amount,
             type = TransactionType.INCOME,
             createdAt = Date(),
-            relatedWalletId = senderWalletId
+            relatedWalletId = senderWalletId // Relacionamos al emisor de la transacción
         )
         transactionRepository.save(transaction)
     }
@@ -67,24 +63,13 @@ class TransactionService(
      * Se vincula a un wallet relacionado, en caso de que se trate de una transacción de tipo DEBIN o similares.
      */
     fun registerOutcomeToExternal(wallet: Wallet, amount: Double, relatedWalletId: UUID) {
-        validateAmount(amount)
         val transaction = Transaction(
             wallet = wallet,
             amount = amount,
             type = TransactionType.OUTCOME,
             createdAt = Date(),
-            relatedWalletId = relatedWalletId
+            relatedWalletId = relatedWalletId // Asociamos al destinatario del pago
         )
         transactionRepository.save(transaction)
-    }
-
-    /**
-     * Valida que el monto sea mayor a cero.
-     * Lanza una excepción si el monto es inválido.
-     */
-    private fun validateAmount(amount: Double) {
-        if (amount <= 0) {
-            throw NegativeOrZeroAmountException("Amount must be greater than zero")
-        }
     }
 }
