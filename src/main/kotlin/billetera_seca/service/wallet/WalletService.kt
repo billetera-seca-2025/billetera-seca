@@ -2,6 +2,8 @@ package billetera_seca.service.wallet
 
 import billetera_seca.dto.InstantDebitRequest
 import billetera_seca.exception.InsufficientBalanceException
+import billetera_seca.exception.NegativeOrZeroAmountException
+import billetera_seca.exception.SelfTransferException
 import billetera_seca.exception.UserNotFoundException
 import billetera_seca.repository.WalletRepository
 import billetera_seca.service.transaction.TransactionService
@@ -21,7 +23,24 @@ class WalletService(
         val user = userService.findByEmail(email) ?: throw UserNotFoundException(email)
         return user.wallet.balance
     }
+
+    fun addBalance(email: String, amount: Double) {
+        val user = userService.findByEmail(email) ?: throw UserNotFoundException(email)
+        if (amount <= 0) {
+            throw NegativeOrZeroAmountException("Amount must be greater than zero")
+        }
+        user.wallet.balance += amount
+        walletRepository.save(user.wallet)
+    }
+
+
     fun transfer(senderEmail: String, receiverEmail: String, amount: Double){
+        if(senderEmail == receiverEmail){
+            throw SelfTransferException("Cannot transfer money to the same account")
+        }
+        if(amount <= 0){
+            throw NegativeOrZeroAmountException("Transfer amount must be greater than zero")
+        }
         val sender = userService.findByEmail(senderEmail) ?: throw UserNotFoundException(senderEmail)
         val receiver = userService.findByEmail(receiverEmail) ?: throw UserNotFoundException(receiverEmail)
 
@@ -63,6 +82,14 @@ class WalletService(
             .retrieve()
             .bodyToMono(Boolean::class.java)  // Assuming the API returns a boolean (true/false)
             .block() ?: false
+    }
+
+    fun setInstantDebitApproval(b: Boolean) {
+        // This method is a placeholder for setting the approval status of the Instant Debit request.
+        // In a real-world scenario, this would involve more complex logic and possibly database interactions.
+        // For now, we will just print the status to the console.
+        println("Instant Debit approval status set to: $b")
+
     }
 
 }

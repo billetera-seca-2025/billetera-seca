@@ -1,10 +1,6 @@
 package billetera_seca.controller
 
-import billetera_seca.exception.InsufficientBalanceException
-import billetera_seca.exception.InvalidEmailFormatException
-import billetera_seca.exception.UserAlreadyExistsException
-import billetera_seca.exception.UserNotFoundException
-import billetera_seca.exception.WeakPasswordException
+import billetera_seca.exception.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -36,6 +32,21 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(InsufficientBalanceException::class)
     fun handleInsufficientBalance(exception: InsufficientBalanceException): ResponseEntity<String> {
+        return ResponseEntity(exception.message, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(SelfTransferException::class)
+    fun handleSelfTransfer(exception: SelfTransferException): ResponseEntity<String> {
+        return ResponseEntity(exception.message, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(NegativeOrZeroAmountException::class)
+    fun handleNegativeOrZeroAmount(exception: NegativeOrZeroAmountException): ResponseEntity<String> {
+        return ResponseEntity(exception.message, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(EmptyPasswordException::class)
+    fun handleEmptyPassword(exception: EmptyPasswordException): ResponseEntity<String> {
         return ResponseEntity(exception.message, HttpStatus.BAD_REQUEST)
     }
 

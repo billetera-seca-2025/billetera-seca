@@ -1,6 +1,10 @@
 package billetera_seca.integration
 
 import billetera_seca.BaseTest
+import billetera_seca.exception.InvalidEmailFormatException
+import billetera_seca.exception.UserAlreadyExistsException
+import billetera_seca.exception.UserNotFoundException
+import billetera_seca.exception.WeakPasswordException
 import billetera_seca.repository.UserRepository
 import billetera_seca.service.user.UserService
 import billetera_seca.util.TestUtils
@@ -11,6 +15,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
+import java.util.*
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -83,6 +88,84 @@ class UserServiceIntegrationTest: BaseTest() {
         assertEquals(testUser2.email, userFromDb2.email)
         assertNotEquals(userFromDb1.id, userFromDb2.id) // Ensure users have different IDs
     }
+
+    @Test
+    fun `should throw exception for invalid email`() {
+        // Arrange
+        val invalidEmail = "invalid-email"
+        val password = "ValidPassword123"
+
+        // Act & Assert
+        val exception = assertThrows<InvalidEmailFormatException> {
+            userService.createUser(invalidEmail, password)
+        }
+        assertEquals("Invalid email format", exception.message)
+    }
+
+    @Test
+    fun `should throw exception for weak password`() {
+        // Arrange
+        val email = "user@example.com"
+        val weakPassword = "123"
+
+        // Act & Assert
+        val exception = assertThrows<WeakPasswordException> {
+            userService.createUser(email, weakPassword)
+        }
+        assertEquals("Password too short", exception.message)
+    }
+    @Test
+    fun `should delete user successfully`() {
+        // Arrange
+        val testUser = TestUtils.createTestUser()
+        val savedUser = userService.createUser(testUser.email, testUser.password, testUser.wallet.balance)
+
+        // Act
+        userService.deleteUser(savedUser.id)
+
+        // Assert
+        val userExists = userRepository.findById(savedUser.id).isPresent
+        assertEquals(false, userExists)
+    }
+
+    @Test
+    fun `should throw exception when deleting non-existent user`() {
+        // Arrange
+        val nonExistentUserId = UUID.randomUUID()
+
+        // Act & Assert
+        val exception = assertThrows<UserNotFoundException> {
+            userService.deleteUser(nonExistentUserId)
+        }
+        assertEquals("User not found", exception.message)
+    }
+
+    @Test
+    fun `should find user by email`() {
+        // Arrange
+        val testUser = TestUtils.createTestUser()
+        userService.createUser(testUser.email, testUser.password, testUser.wallet.balance)
+
+        // Act
+        val foundUser = userService.findByEmail(testUser.email)
+
+        // Assert
+        assertEquals(testUser.email, foundUser?.email)
+    }
+
+    @Test
+    fun `should throw exception when updating non-existent user`() {
+        // Arrange
+        val nonExistentUser = TestUtils.createTestUser()
+        nonExistentUser.id = UUID.randomUUID()
+
+        // Act & Assert
+        val exception = assertThrows<UserNotFoundException> {
+            userService.updateUser(nonExistentUser)
+        }
+        assertEquals("User not found", exception.message)
+    }
+
 
 
 }

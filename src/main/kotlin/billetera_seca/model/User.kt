@@ -13,11 +13,11 @@ import java.util.UUID
 @Table(name = "users")
 data class User(
     @Id
-    val id: UUID = UUID.randomUUID(),
+    var id: UUID = UUID.randomUUID(),
     @Column(unique = true, nullable = false)
-    val email: String,
+    var email: String,
     @Column(nullable = false)
-    val password: String,
+    var password: String,
     @OneToOne
     @JoinColumn(name = "wallet_id")
     val wallet: Wallet,

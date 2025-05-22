@@ -7,10 +7,10 @@ import java.util.*
 object TestUtils {
 
     // Creates a dummy wallet for testing
-    fun createTestWallet(): Wallet {
+    fun createTestWallet(balance: Double = 1000.0): Wallet {
         return Wallet(
             id = UUID.randomUUID(),
-            balance = 1000.0
+            balance = balance
         )
     }
 
@@ -21,6 +21,24 @@ object TestUtils {
             email = email,
             password = password,
             wallet = createTestWallet()
+        )
+    }
+
+    // Creates a user with a specific wallet balance
+    fun createTestUserWithBalance(email: String, balance: Double): User {
+        return User(
+            id = UUID.randomUUID(),
+            email = email,
+            password = "secure123",
+            wallet = createTestWallet(balance)
+        )
+    }
+
+    // Creates a wallet with a specific ID
+    fun createTestWalletWithId(id: UUID, balance: Double = 1000.0): Wallet {
+        return Wallet(
+            id = id,
+            balance = balance
         )
     }
 }
