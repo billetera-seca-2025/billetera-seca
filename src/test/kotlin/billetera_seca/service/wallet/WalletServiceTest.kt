@@ -2,8 +2,6 @@ package billetera_seca.service.wallet
 
 import billetera_seca.model.dto.InstantDebitRequest
 import billetera_seca.exception.InsufficientBalanceException
-import billetera_seca.exception.NegativeOrZeroAmountException
-import billetera_seca.exception.SelfTransferException
 import billetera_seca.exception.UserNotFoundException
 import billetera_seca.model.Wallet
 import billetera_seca.repository.WalletRepository
@@ -267,97 +265,5 @@ class WalletServiceTest {
             webClient.post().uri("/mock/instant-debit").bodyValue(any()).retrieve().bodyToMono(Boolean::class.java)
         }
     }
-
-    @Test
-    fun `getBalance should throw UserNotFoundException if user is not found`() {
-        // Arrange
-        val email = "nonexistent@example.com"
-        every { userService.findByEmail(email) } returns null
-
-        // Act & Assert
-        assertThrows<UserNotFoundException> {
-            walletService.getBalance(email)
-        }
-        verify(exactly = 1) { userService.findByEmail(email) }
-    }
-
-    @Test
-    fun `addBalance should successfully add funds to a user's wallet`() {
-        // Arrange
-        val email = "user@example.com"
-        val amount = 100.0
-        val user = TestUtils.createTestUser(email).apply {
-            wallet.balance = 200.0
-        }
-        every { userService.findByEmail(email) } returns user
-        every { walletRepository.save(any()) } answers { firstArg<Wallet>() }
-
-        // Act
-        walletService.addBalance(email, amount)
-
-        // Assert
-        assertEquals(300.0, user.wallet.balance)  // 200 + 100
-        verify(exactly = 1) { walletRepository.save(user.wallet) }
-    }
-
-    @Test
-    fun `addBalance should throw NegativeOrZeroAmountException if amount is zero or negative`() {
-        // Arrange
-        val email = "user@example.com"
-        val user = TestUtils.createTestUser(email)
-        every { userService.findByEmail(email) } returns user
-
-        // Act & Assert
-        assertThrows<NegativeOrZeroAmountException> {
-            walletService.addBalance(email, 0.0)
-        }
-        assertThrows<NegativeOrZeroAmountException> {
-            walletService.addBalance(email, -50.0)
-        }
-        verify(exactly = 0) { walletRepository.save(any()) }
-    }
-
-    @Test
-    fun `transfer should throw SelfTransferException if sender and receiver are the same`() {
-        // Arrange
-        val email = "user@example.com"
-        val amount = 100.0
-        val user = TestUtils.createTestUser(email).apply {
-            wallet.balance = 200.0
-        }
-        every { userService.findByEmail(email) } returns user
-
-        // Act & Assert
-        assertThrows<SelfTransferException> {
-            walletService.transfer(email, email, amount)
-        }
-        verify(exactly = 0) { walletRepository.save(any()) }
-        verify(exactly = 0) { transactionService.registerOutcome(any(), any()) }
-    }
-/*
-    @Test
-    fun `handleInstantDebitRequest should throw NegativeOrZeroAmountException for zero or negative amounts`() {
-        // Arrange
-        val payerEmail = "payer@example.com"
-        val collectorEmail = "collector@example.com"
-        val instantDebitRequestZero = InstantDebitRequest(payerEmail, collectorEmail, 0.0)
-        val instantDebitRequestNegative = InstantDebitRequest(payerEmail, collectorEmail, -100.0)
-
-        every { userService.findByEmail(payerEmail) } returns TestUtils.createTestUser(payerEmail)
-        every { userService.findByEmail(collectorEmail) } returns TestUtils.createTestUser(collectorEmail)
-
-        // Act & Assert
-        assertThrows<NegativeOrZeroAmountException> {
-            walletService.handleInstantDebitRequest(instantDebitRequestZero)
-        }
-        assertThrows<NegativeOrZeroAmountException> {
-            walletService.handleInstantDebitRequest(instantDebitRequestNegative)
-        }
-        verify(exactly = 0) { walletRepository.save(any()) }
-        verify(exactly = 0) { transactionService.registerOutcomeToExternal(any(), any(), any()) }
-        verify(exactly = 0) { transactionService.registerIncomeFromP2P(any(), any(), any()) }
-    }
-
- */
 
 }

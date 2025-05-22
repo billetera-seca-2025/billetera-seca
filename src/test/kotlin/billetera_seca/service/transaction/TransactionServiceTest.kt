@@ -4,6 +4,7 @@ import billetera_seca.exception.NegativeOrZeroAmountException
 import billetera_seca.model.Transaction
 import billetera_seca.model.TransactionType
 import billetera_seca.repository.TransactionRepository
+import billetera_seca.service.user.UserService
 import billetera_seca.util.TestUtils
 import io.mockk.*
 import org.junit.jupiter.api.BeforeEach
@@ -14,12 +15,14 @@ import java.util.*
 class TransactionServiceTest {
 
     private lateinit var transactionRepository: TransactionRepository
+    private lateinit var userService: UserService
     private lateinit var transactionService: TransactionService
 
     @BeforeEach
     fun setUp() {
         transactionRepository = mockk()
-        transactionService = TransactionService(transactionRepository)
+        userService = mockk()
+        transactionService = TransactionService(transactionRepository, userService)
     }
 
     @Test
@@ -73,7 +76,7 @@ class TransactionServiceTest {
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
-                    it.wallet.id == wallet.id && it.amount == amount && it.type ==  TransactionType.OUTCOME && it.relatedWalletId == null
+                    it.wallet.id == wallet.id && it.amount == amount && it.type == TransactionType.OUTCOME && it.relatedWalletId == null
                 }
             )
         }
@@ -84,6 +87,7 @@ class TransactionServiceTest {
         // Arrange
         val wallet = TestUtils.createTestWallet()
         val amount = 200.0
+        val bankName = "BBVA"
 
         // Mock the behavior of the repository for the save method
         every {
@@ -95,13 +99,13 @@ class TransactionServiceTest {
         }
 
         // Act
-        transactionService.registerIncome(wallet, amount)
+        transactionService.registerIncome(wallet, amount, bankName)
 
         // Assert
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
-                    it.wallet.id == wallet.id && it.amount == amount && it.type ==  TransactionType.INCOME && it.relatedWalletId == null
+                    it.wallet.id == wallet.id && it.amount == amount && it.type == TransactionType.INCOME && it.relatedWalletId == null && it.relatedBankName == bankName
                 }
             )
         }
@@ -242,10 +246,9 @@ class TransactionServiceTest {
         verify(exactly = 1) {
             transactionRepository.save(
                 match {
-                    it.wallet.id == wallet.id && it.amount == amount && it.type ==  TransactionType.INCOME && it.relatedWalletId == senderWalletId
+                    it.wallet.id == wallet.id && it.amount == amount && it.type == TransactionType.INCOME && it.relatedWalletId == senderWalletId
                 }
             )
         }
     }
-
 }
