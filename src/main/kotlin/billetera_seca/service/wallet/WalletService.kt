@@ -55,7 +55,6 @@ class WalletService(
         println("Received instant debit request: $instantDebitRequest")
 
         return try {
-
             // Validate if user exists
             userService.findByEmail(instantDebitRequest.receiverEmail)
                 ?: throw UserNotFoundException(instantDebitRequest.receiverEmail)
@@ -69,22 +68,27 @@ class WalletService(
 
             when {
                 instantDebitResult.isSuccess && instantDebitResult.getOrDefault(false) -> {
-                    // Procesar la transferencia dentro de una transacción
+                    // Process the transfer within a transaction
                     try {
                         transferInstantDebit(instantDebitRequest.receiverEmail, instantDebitRequest.amount, instantDebitRequest.bankName)
                         Result.success(true)
                     } catch (e: Exception) {
-                        // Si falla la transferencia, registrar el error y propagar
+                        // If transfer fails, log error and propagate
                         println("Error processing transfer after successful authorization: ${e.message}")
                         Result.failure(e)
                     }
                 }
+                instantDebitResult.isSuccess && !instantDebitResult.getOrDefault(false) -> {
+                    // Bank explicitly rejected the operation
+                    Result.failure(RuntimeException("Bank rejected the Instant Debit Request"))
+                }
                 instantDebitResult.isFailure -> {
-                    // Propagar el error específico del banco
-                    Result.failure(instantDebitResult.exceptionOrNull() ?: RuntimeException("El banco rechazó la operación"))
+                    // Propagate the specific bank error
+                    Result.failure(instantDebitResult.exceptionOrNull() ?: RuntimeException("Bank rejected the operation"))
                 }
                 else -> {
-                    Result.failure(RuntimeException("El banco rechazó la operación"))
+                    // This case should never happen due to the Result type, but we need it for exhaustiveness
+                    Result.failure(RuntimeException("Unexpected state in instant debit result"))
                 }
             }
         } catch (e: Exception) {
@@ -93,7 +97,7 @@ class WalletService(
                 is IllegalArgumentException -> Result.failure(e)
                 else -> {
                     println("Unexpected error processing instant debit: ${e.message}")
-                    Result.failure(RuntimeException("Error inesperado al procesar el DEBIN"))
+                    Result.failure(RuntimeException("Unexpected error processing instant debit: ${e.message}"))
                 }
             }
         }

@@ -96,19 +96,20 @@ class WalletControllerTest {
     fun `requestInstantDebit should return OK when DEBIN is accepted`() {
         // Arrange
         val debinRequest = InstantDebitRequest(
-            payerEmail = "payer@example.com",
-            collectorEmail = "collector@example.com",
+            receiverEmail = "receiver@example.com",
+            bankName = "BBVA",
             amount = 200.0
         )
 
-        every { walletService.handleInstantDebitRequest(debinRequest) } returns true
+        every { walletService.handleInstantDebitRequest(debinRequest) } returns Result.success(true)
 
         // Act
         val response = walletController.requestInstantDebit(debinRequest)
 
         // Assert
         assert(response.statusCode == HttpStatus.OK)
-        assert(response.body == "DEBIN accepted and processed")
+        assert(response.body?.success == true)
+        assert(response.body?.message == "Instant Debit request approved")
         verify(exactly = 1) { walletService.handleInstantDebitRequest(debinRequest) }
     }
 
@@ -116,19 +117,20 @@ class WalletControllerTest {
     fun `requestInstantDebit should return BAD_REQUEST when DEBIN is rejected`() {
         // Arrange
         val instantDebitRequest = InstantDebitRequest(
-            payerEmail = "payer@example.com",
-            collectorEmail = "collector@example.com",
+            receiverEmail = "receiver@example.com",
+            bankName = "BBVA",
             amount = 200.0
         )
 
-        every { walletService.handleInstantDebitRequest(instantDebitRequest) } returns false
+        every { walletService.handleInstantDebitRequest(instantDebitRequest) } returns Result.failure(RuntimeException("Bank rejected the operation"))
 
         // Act
         val response = walletController.requestInstantDebit(instantDebitRequest)
 
         // Assert
         assert(response.statusCode == HttpStatus.BAD_REQUEST)
-        assert(response.body == "DEBIN rejected or failed")
+        assert(response.body?.success == false)
+        assert(response.body?.message == "Bank rejected the operation")
         verify(exactly = 1) { walletService.handleInstantDebitRequest(instantDebitRequest) }
     }
 }
