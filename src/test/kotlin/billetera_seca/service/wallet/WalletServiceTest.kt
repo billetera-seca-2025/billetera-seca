@@ -1,6 +1,6 @@
 package billetera_seca.service.wallet
 
-import billetera_seca.dto.InstantDebitRequest
+import billetera_seca.model.dto.InstantDebitRequest
 import billetera_seca.exception.InsufficientBalanceException
 import billetera_seca.exception.UserNotFoundException
 import billetera_seca.model.Wallet

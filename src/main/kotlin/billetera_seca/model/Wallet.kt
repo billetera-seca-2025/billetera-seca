@@ -14,5 +14,8 @@ data class Wallet(
     val createdAt: Date = Date(),
 
     @OneToMany(mappedBy = "wallet", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val transactions: List<Transaction> = mutableListOf()
+    val transactions: List<Transaction> = mutableListOf(),
+
+    @OneToOne(mappedBy = "wallet")
+    val user: User? = null
 )

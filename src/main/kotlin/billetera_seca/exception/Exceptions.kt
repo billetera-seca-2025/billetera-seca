@@ -14,3 +14,6 @@ class UserNotFoundException(message: String) : RuntimeException(message)
 
 // Exception when the wallet balance is insufficient
 class InsufficientBalanceException(message: String) : RuntimeException(message)
+
+// Exception when the wallet is not found
+class WalletNotFoundException(message: String) : RuntimeException(message)

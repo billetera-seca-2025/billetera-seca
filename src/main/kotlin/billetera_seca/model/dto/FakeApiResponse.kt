@@ -1,3 +1,6 @@
 package billetera_seca.model.dto
 
-data class FakeApiResponse(val success: Boolean)
+data class FakeApiResponse<T>(val success: Boolean,
+                           val message: String,
+                           val data: T? = null
+)

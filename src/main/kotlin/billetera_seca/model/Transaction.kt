@@ -27,6 +27,9 @@ data class Transaction(
     val createdAt: Date = Date(),
 
     @Column(nullable = true)
-    val relatedWalletId: UUID? = null  // Associated wallet ID for the movement (e.g., for P2P transactions)
+    val relatedWalletId: UUID? = null,  // Associated wallet ID for the movement (e.g., for P2P transactions)
+
+    @Column(nullable = true)
+    val relatedBankName: String? = null // Associated bank name for the movement (e.g., for Instant Debit transactions)
 
 )
