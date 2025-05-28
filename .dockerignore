@@ -1,8 +1,8 @@
 .git
 .gitignore
 .gradle
-build
+ .idea
+build/
 out
 **/*.iml
-.idea
 .env
