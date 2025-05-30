@@ -51,7 +51,8 @@ class WalletController(private val walletService: WalletService) {
                             message = "Instant Debit request approved",
                             data = mapOf(
                                 "amount" to instantDebitRequest.amount,
-                                "bankName" to instantDebitRequest.bankName
+                                "bankName" to instantDebitRequest.bankName,
+                                "cbu" to instantDebitRequest.cbu,
                             )
                         )
                     )

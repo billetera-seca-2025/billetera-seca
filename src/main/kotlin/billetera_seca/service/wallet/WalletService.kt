@@ -63,6 +63,7 @@ class WalletService(
             val instantDebitResult = requestInstantDebitAuthorization(
                 receiverEmail = instantDebitRequest.receiverEmail,
                 bankName = instantDebitRequest.bankName,
+                cbu = instantDebitRequest.cbu,
                 amount = instantDebitRequest.amount
             )
 
@@ -123,13 +124,14 @@ class WalletService(
     private fun requestInstantDebitAuthorization(
         receiverEmail: String,
         bankName: String,
+        cbu: String,
         amount: Double
     ): Result<Boolean> {
         // Call the API mock to request Instant Debit authorization
         return try {
             val response = webClient.post()
                 .uri("/mock/instant-debit")
-                .bodyValue(InstantDebitRequest(receiverEmail = receiverEmail, bankName = bankName, amount = amount))
+                .bodyValue(InstantDebitRequest(receiverEmail = receiverEmail, bankName = bankName, cbu = cbu, amount = amount))
                 .retrieve()
                 .onStatus({ it.isError }) { response ->
                     response.bodyToMono(String::class.java).flatMap { body ->
