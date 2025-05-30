@@ -51,5 +51,7 @@ dependencies {
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags("ci-exclude")
+    }
 }
