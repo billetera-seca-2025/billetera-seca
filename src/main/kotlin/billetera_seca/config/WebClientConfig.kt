@@ -9,6 +9,6 @@ class WebClientConfig {
 
     @Bean
     fun webClient(): WebClient {
-        return WebClient.create("http://api-mock:8081")  // API fake en Docker
+        return WebClient.create("http://fake-api:8081")
     }
 }
