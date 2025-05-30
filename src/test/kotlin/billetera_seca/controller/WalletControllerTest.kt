@@ -98,7 +98,8 @@ class WalletControllerTest {
         val debinRequest = InstantDebitRequest(
             receiverEmail = "receiver@example.com",
             bankName = "BBVA",
-            amount = 200.0
+            amount = 200.0,
+            cbu = "1234567890123456789012"
         )
 
         every { walletService.handleInstantDebitRequest(debinRequest) } returns Result.success(true)
@@ -119,7 +120,8 @@ class WalletControllerTest {
         val instantDebitRequest = InstantDebitRequest(
             receiverEmail = "receiver@example.com",
             bankName = "BBVA",
-            amount = 200.0
+            amount = 200.0,
+            cbu = "1234567890123456789012"
         )
 
         every { walletService.handleInstantDebitRequest(instantDebitRequest) } returns Result.failure(RuntimeException("Bank rejected the operation"))

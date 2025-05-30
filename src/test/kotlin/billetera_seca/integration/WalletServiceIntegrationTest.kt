@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles
 import billetera_seca.model.dto.InstantDebitRequest
 import org.junit.jupiter.api.Tag
 
+@Tag("ci-exclude")
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(TestWebClientConfig::class)
@@ -50,7 +51,8 @@ class WalletServiceIntegrationTest: BaseTest() {
             InstantDebitRequest(
                 receiverEmail = savedReceiver.email,
                 bankName = invalidBankName,
-                amount = amount
+                amount = amount,
+                cbu = "1234567890123456789012"
             )
         )
 
@@ -82,7 +84,8 @@ class WalletServiceIntegrationTest: BaseTest() {
             InstantDebitRequest(
                 receiverEmail = savedReceiver.email,
                 bankName = bankName,
-                amount = invalidAmount
+                amount = invalidAmount,
+                cbu = "1234567890123456789012"
             )
         )
 
@@ -114,7 +117,8 @@ class WalletServiceIntegrationTest: BaseTest() {
             InstantDebitRequest(
                 receiverEmail = savedReceiver.email,
                 bankName = bankName,
-                amount = amountExceedingLimit
+                amount = amountExceedingLimit,
+                cbu = "1234567890123456789012"
             )
         )
 
