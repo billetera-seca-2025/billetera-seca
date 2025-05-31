@@ -2,6 +2,7 @@ package billetera_seca.controller
 
 import billetera_seca.model.dto.FakeApiResponse
 import billetera_seca.model.dto.InstantDebitRequest
+import billetera_seca.model.dto.TransferRequest
 import billetera_seca.service.wallet.WalletService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -22,12 +23,9 @@ class WalletController(private val walletService: WalletService) {
     }
 
     @PostMapping("/transfer")
-    fun transfer(
-        @RequestParam senderEmail: String,
-        @RequestParam receiverEmail: String,
-        @RequestParam amount: Double
+    fun transfer(@RequestBody request: TransferRequest
     ): ResponseEntity<String> {
-        walletService.transfer(senderEmail, receiverEmail, amount)
+        walletService.transfer(senderEmail = request.senderEmail, receiverEmail = request.receiverEmail, amount = request.amount)
         return ResponseEntity.ok("Transfer successful")
     }
 
