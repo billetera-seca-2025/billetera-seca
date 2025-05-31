@@ -3,6 +3,7 @@ package billetera_seca.controller
 import billetera_seca.model.dto.InstantDebitRequest
 import billetera_seca.exception.InsufficientBalanceException
 import billetera_seca.exception.UserNotFoundException
+import billetera_seca.model.dto.TransferRequest
 import billetera_seca.service.wallet.WalletService
 import io.mockk.every
 import io.mockk.just
@@ -52,7 +53,7 @@ class WalletControllerTest {
         every { walletService.transfer(senderEmail, receiverEmail, amount) } just runs
 
         // Act
-        val response = walletController.transfer(senderEmail, receiverEmail, amount)
+        val response = walletController.transfer(TransferRequest(senderEmail, receiverEmail, amount))
 
         // Assert
         assert(response.statusCode == HttpStatus.OK)
@@ -71,7 +72,7 @@ class WalletControllerTest {
 
         // Act & Assert
         assertThrows<UserNotFoundException> {
-            walletController.transfer(senderEmail, receiverEmail, amount)
+            walletController.transfer(TransferRequest(senderEmail, receiverEmail, amount))
         }
         verify(exactly = 1) { walletService.transfer(senderEmail, receiverEmail, amount) }
     }
@@ -87,7 +88,7 @@ class WalletControllerTest {
 
         // Act & Assert
         assertThrows<InsufficientBalanceException> {
-            walletController.transfer(senderEmail, receiverEmail, amount)
+            walletController.transfer(TransferRequest(senderEmail, receiverEmail, amount))
         }
         verify(exactly = 1) { walletService.transfer(senderEmail, receiverEmail, amount) }
     }
