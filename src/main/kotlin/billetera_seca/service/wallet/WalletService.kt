@@ -149,4 +149,28 @@ class WalletService(
             Result.failure(RuntimeException(ex.message))
         }
     }
+
+    fun getCbuBalance(cbu: String): Double? {
+        // Call the API mock to get the balance for a given CBU
+        return try {
+            val response = webClient.get()
+                .uri("/mock/get-cbu-balance/{cbu}", cbu)
+                .retrieve()
+                .onStatus({ it.isError }) { response ->
+                    response.bodyToMono(String::class.java).flatMap { body ->
+                        // Log the specific error response
+                        throw RuntimeException(body)
+                    }
+                }
+                .bodyToMono(Map::class.java)
+                .block()
+
+            (response?.get("balance") as? Double)
+        } catch (ex: Exception) {
+            // Handle any errors that occur during the API call
+            println("Error fetching CBU balance: ${ex.message}")
+            null
+        }
+    }
+
 }
