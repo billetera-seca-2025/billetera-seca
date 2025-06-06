@@ -1,7 +1,9 @@
 # Locust Load Testing Guide for BilleteraSeca
 
 This guide will help you run load tests on the BilleteraSeca API using Locust.
-
+```powershell
+python -m locust -f .\locustfile.py --host=http://localhost:8080
+```
 ## Prerequisites
 
 - Python 3.8 or higher
