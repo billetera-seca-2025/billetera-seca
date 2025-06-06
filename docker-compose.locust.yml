@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  locust:
+    build:
+      context: .
+      dockerfile: Dockerfile.locust
+    ports:
+      - "8089:8089"
+    environment:
+      - LOCUST_HEADLESS=false
+      - LOCUST_USERS=10
+      - LOCUST_SPAWN_RATE=1
+      - LOCUST_RUN_TIME=1m
+      - TARGET_HOST=http://host.docker.internal:8080  # Para conectar a la app Spring Boot en el host
+    volumes:
+      - ./locustfile.py:/app/locustfile.py
+      - ./requirements.txt:/app/requirements.txt
+      - ./README.locust.md:/app/README.locust.md
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Permite conectar al host desde el contenedor 
